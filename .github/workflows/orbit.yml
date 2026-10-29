@@ -1,0 +1,25 @@
+# Refreshes data/orbit.json (commits and last activity of the "other projects") once a day.
+name: orbit data
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch GitHub numbers
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ORBIT_OUT: data/orbit.json
+        run: python3 scripts/github_stats.py
+      - name: Commit if changed
+        run: |
+          git diff --quiet data/orbit.json && exit 0
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -am 'Atualiza dados da órbita'
+          git push
