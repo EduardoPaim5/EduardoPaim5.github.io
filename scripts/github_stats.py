@@ -13,7 +13,8 @@ from pathlib import Path
 USER = 'EduardoPaim5'
 # disc index in the page -> repository
 REPOS = ['EduardoPaim5/pulseapi', 'EduardoPaim5/Nexilum', 'EduardoPaim5/jungle-backend-challenge', 'EduardoPaim5/betalent-payments-api',
-         'EduardoPaim5/performance-reproducibility', 'EduardoPaim5/pvault', 'EduardoPaim5/edge-cloud-task-allocation-simulator', 'Thoth2023/thoth-remake']
+         'EduardoPaim5/performance-reproducibility', 'EduardoPaim5/pvault', 'EduardoPaim5/edge-cloud-task-allocation-simulator', 'Thoth2023/thoth-remake',
+         ['GraphCognitio/graphcognitio', 'GraphCognitio/graphcognitio-web']]
 
 
 def gh(path):
@@ -35,12 +36,13 @@ def my_commits(repo):
 def main():
     now = datetime.now(timezone.utc)
     items = []
-    for i, repo in enumerate(REPOS):
-        info = gh(f'repos/{repo}')
-        last = gh(f'repos/{repo}/commits?author={USER}&per_page=1')
-        last_at = last[0]['commit']['author']['date'] if last else info['pushed_at']
+    for i, entry in enumerate(REPOS):
+        repos = entry if isinstance(entry, list) else [entry]  # a project split in several repos counts as one disc
+        infos = [gh(f'repos/{r}') for r in repos]
+        lasts = [c[0]['commit']['author']['date'] for r in repos if (c := gh(f'repos/{r}/commits?author={USER}&per_page=1'))]
+        last_at = max(lasts) if lasts else max(x['pushed_at'] for x in infos)
         items.append({
-            'i': i, 'repo': repo, 'commits': my_commits(repo), 'created': info['created_at'], 'last': last_at,
+            'i': i, 'repo': ' + '.join(repos), 'commits': sum(my_commits(r) for r in repos), 'created': min(x['created_at'] for x in infos), 'last': last_at,
             'days_idle': (now - datetime.fromisoformat(last_at.replace('Z', '+00:00'))).days,
         })
     out = Path(os.environ.get('ORBIT_OUT') or Path(__file__).resolve().parent.parent / 'site' / 'data' / 'orbit.json')

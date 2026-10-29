@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-29T03:40:35+00:00",
+ "generated": "2026-10-29T03:55:19+00:00",
  "projects": [
   {
    "i": 0,
@@ -55,7 +55,7 @@
    "commits": 1,
    "created": "2026-07-07T03:42:39Z",
    "last": "2026-07-07T03:44:37Z",
-   "days_idle": 113
+   "days_idle": 114
   },
   {
    "i": 7,
@@ -64,6 +64,14 @@
    "created": "2023-05-08T01:41:25Z",
    "last": "2025-06-23T13:19:58Z",
    "days_idle": 492
+  },
+  {
+   "i": 8,
+   "repo": "GraphCognitio/graphcognitio + GraphCognitio/graphcognitio-web",
+   "commits": 76,
+   "created": "2026-02-26T00:58:24Z",
+   "last": "2026-10-25T17:02:52Z",
+   "days_idle": 3
   }
  ]
 }
