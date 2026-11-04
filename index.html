@@ -149,6 +149,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .pi-top .k{font-family:var(--f-mono);font-size:11.5px;opacity:.75;font-variant-numeric:tabular-nums}
 .pi-name{margin:0;font-size:clamp(26px,2.4vw,40px);font-weight:500;letter-spacing:-.04em;line-height:1}
 .pi-line{margin:0;font-size:15px;opacity:.85;text-wrap:pretty}
+.pi-link{align-self:flex-start;font-size:15px;font-weight:600;color:inherit}
 .pi-stack{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .pi-stack span{background:var(--t);color:var(--c);font-size:14px;font-weight:600;letter-spacing:-.01em;padding:7px 11px;line-height:1.1}
 .pi-nav{margin-top:auto;display:flex;gap:6px}
@@ -397,7 +398,6 @@ button{font:inherit;color:inherit;cursor:pointer}
 .px-track{display:grid;align-items:stretch;justify-items:stretch;grid-template-columns:1.7fr 1fr 1fr;grid-template-rows:repeat(2,minmax(0,1fr));gap:12px;overflow:hidden;cursor:default;padding:clamp(10px,1.2vw,18px) clamp(14px,1.6vw,24px) clamp(14px,1.6vw,24px)}
 .pxc{width:auto;min-width:0;min-height:0;cursor:pointer}
 .pxc[data-k="intelectio"]{grid-row:1 / 3}
-.pxc[data-k="aero"]{grid-column:2 / 4}
 .pxc .shot{position:absolute;inset:0;aspect-ratio:auto}
 .pxc .cap{top:auto;bottom:0;right:auto;padding:8px 12px;background:var(--ink);color:var(--paper);gap:14px}
 .pxc .cap span{opacity:.7}
@@ -599,6 +599,7 @@ button{font:inherit;color:inherit;cursor:pointer}
           <div class="pi-top"><button class="pback" id="pBack" type="button">← todos</button><span class="k" id="pIdx">1 / 5</span><button class="x" type="button" aria-label="Fechar">×</button></div>
           <h2 class="pi-name" id="pName"></h2>
           <p class="pi-line" id="pLine"></p>
+          <a class="pi-link" id="pLink" target="_blank" rel="noopener" hidden></a>
           <div class="pi-stack" id="pStack" aria-label="Tecnologias"></div>
           <div class="pi-media" id="pMedia"></div>
           <div class="pi-nav"><button type="button" id="pPrev" aria-label="Projeto anterior">←</button><button type="button" id="pNext" aria-label="Próximo projeto">→</button></div>
@@ -803,11 +804,19 @@ button{font:inherit;color:inherit;cursor:pointer}
               ['media/nexo-05-checkout.webp', 'Checkout de demonstração']],
     },
     aero: {
-      video: 'media/aero.mp4', poster: 'media/aero-poster.webp', ratio: 16 / 9, sound: true,
+      video: 'media/aero.mp4', poster: 'media/aero-poster.webp', ratio: 16 / 9, sound: '♪ ouvir o gramado',
       shots: [['media/aero-01.webp', 'O gramado'], ['media/aero-02.webp', 'Rádio-bolha tocando'],
               ['media/aero-03.webp', 'A árvore na colina'], ['media/aero-04.webp', 'Na sombra da árvore']],
     },
+    espelho: {
+      video: 'media/espelho.mp4', poster: 'media/espelho-poster.webp', ratio: 16 / 9, sound: '♪ ouvir a trilha',
+      link: 'https://espelho.scientiaaedificat.workers.dev',
+      shots: [['media/espelho-01-inicio.webp', 'Abertura'], ['media/espelho-02-conversa.webp', 'Conversa ao lado da tela'],
+              ['media/espelho-03-anotar.webp', 'Riscando sobre a tela'], ['media/espelho-04-mosaico.webp', 'Duas telas lado a lado'],
+              ['media/espelho-05-radio.webp', 'O rádio da sala']],
+    },
   };
+  P.espelho = { t: 'Espelho', stack: ['TypeScript', 'WebRTC', 'Cloudflare Workers', 'Durable Objects', 'WebGL', 'Rust · Tauri'] };
   P.aero = { t: 'Jogo Aero', stack: ['Godot 4.7', 'GDScript', 'Blender', 'Shaders', 'Áudio procedural'] };
   P.avico = { t: 'AVICO', stack: ['Laravel 13', 'PHP 8.4', 'PostgreSQL', 'Tailwind', 'Docker', 'PHPUnit'] };
   P.nexo = { t: 'Nexo', stack: ['WordPress', 'WooCommerce', 'PHP', 'MySQL', 'Docker', 'Playwright'] };
@@ -834,7 +843,7 @@ button{font:inherit;color:inherit;cursor:pointer}
     el.replaceChildren(node);
     // games are heard: in the opened project a button turns the sound on (browsers only autoplay muted)
     if (m.sound && shot < 0 && el.id === 'demo') {
-      const s = Object.assign(document.createElement('button'), { type: 'button', className: 'snd', textContent: '♪ ouvir o gramado' });
+      const s = Object.assign(document.createElement('button'), { type: 'button', className: 'snd', textContent: m.sound });
       s.setAttribute('aria-pressed', 'false');
       const box = Object.assign(document.createElement('div'), { className: 'sndbox' });
       const vol = Object.assign(document.createElement('input'), { type: 'range', min: 0, max: 1, step: .05, value: .5, className: 'vol', hidden: true });
@@ -843,7 +852,7 @@ button{font:inherit;color:inherit;cursor:pointer}
       vol.addEventListener('input', e => { e.stopPropagation(); node.volume = +vol.value; });
       vol.addEventListener('click', e => e.stopPropagation());
       s.addEventListener('click', e => { e.stopPropagation(); node.muted = !node.muted; if (!node.muted) { node.currentTime = 0; node.play?.().catch(() => {}); }
-        s.textContent = node.muted ? '♪ ouvir o gramado' : '♪ som ligado'; s.setAttribute('aria-pressed', String(!node.muted)); vol.hidden = node.muted; });
+        s.textContent = node.muted ? m.sound : '♪ som ligado'; s.setAttribute('aria-pressed', String(!node.muted)); vol.hidden = node.muted; });
       box.append(s, vol);
       el.append(box);
     }
@@ -941,11 +950,12 @@ button{font:inherit;color:inherit;cursor:pointer}
   /* ---------- projects ---------- */
   const demo = document.getElementById('demo'), stage = document.getElementById('stage');
   let sel = 'intelectio', stop = () => {};
-  const KS = ['intelectio', 'avico', 'nexo', 'aero'];
+  const KS = ['intelectio', 'avico', 'nexo', 'aero', 'espelho'];
   const LINE = {"barber": "Do WhatsApp lotado à agenda que se preenche sozinha.", "shop": "Das perguntas de preço no Direct à loja que vende com Pix.", "dash": "Do caderno de pedidos ao caixa que fecha sozinho.", "clinic": "Da recepção presa ao telefone à consulta marcada em três toques."};
   LINE.avico = 'Gestão de uma ONG de vítimas da COVID-19: associados, contribuições, doações e prestação de contas. Meu TCC, feito para a associação.';
   LINE.nexo = 'Loja de acessórios com tema e plugin próprios: frete por região, cupom e checkout de demonstração.';
   LINE.aero = 'Jogo de exploração aconchegante em 3D, na estética Frutiger Aero. Dois dias de desenvolvimento até aqui — ligue o som.';
+  LINE.espelho = 'Compartilhamento de tela pelo navegador, sem cadastro: a imagem vai direto entre as pessoas, com conversa, riscos sobre a tela e um rádio em que a sala vira um sistema solar. Visual inspirado no cinema de Tarkovsky.';
   LINE.intelectio = 'Prazos, taxas e dados do INPI de toda a propriedade intelectual de uma universidade, num só lugar.';
   function pick(k, dir = 0) {
     sel = k;
@@ -969,6 +979,7 @@ button{font:inherit;color:inherit;cursor:pointer}
     fitStage();
     document.getElementById('pName').textContent = P[k].t.split(' · ')[0];
     document.getElementById('pLine').textContent = LINE[k];
+    const pl = document.getElementById('pLink'); pl.hidden = !MEDIA[k]?.link; if (MEDIA[k]?.link) { pl.href = MEDIA[k].link; pl.textContent = 'abrir o Espelho ↗'; }
     document.getElementById('pStack').replaceChildren(...P[k].stack.map(t => Object.assign(document.createElement('span'), { textContent: t })));
     document.getElementById('pIdx').textContent = `${KS.indexOf(k) + 1} / ${KS.length}`;
     if (!reduce && dir) demo.animate([{ opacity: 0, transform: `translateX(${dir * 24}px)` }, { opacity: 1, transform: 'none' }], { duration: 450, easing: 'cubic-bezier(.22,1,.36,1)' });
@@ -1001,7 +1012,7 @@ button{font:inherit;color:inherit;cursor:pointer}
   /* ---------- the projects mosaic (built from the frieze code: same cards, laid out by CSS grid) ---------- */
   const projCol = document.querySelector('.col.projects'), track = document.getElementById('pxTrack'), bar = document.getElementById('pxBar');
   let idxStops = [];
-  const KINDS = { intelectio: 'sistema real', avico: 'sistema · TCC', nexo: 'loja online', aero: 'jogo · em produção', barber: 'barbearia · conceito', shop: 'loja online', dash: 'sistema', clinic: 'clínica' };
+  const KINDS = { espelho: 'app web · em uso', intelectio: 'sistema real', avico: 'sistema · TCC', nexo: 'loja online', aero: 'jogo · em produção', barber: 'barbearia · conceito', shop: 'loja online', dash: 'sistema', clinic: 'clínica' };
   function clearIndex() { idxStops.forEach(f => f()); idxStops = []; track.replaceChildren(); }
   function buildIndex() {
     clearIndex();
@@ -1161,7 +1172,7 @@ button{font:inherit;color:inherit;cursor:pointer}
   document.getElementById('pBack').addEventListener('click', toIndex);
 
   /* ---------- the preview at the top of Projetos: one site at a time, turned like a sign ---------- */
-  const ORDER = ['intelectio', 'avico', 'nexo', 'aero'], NAMES = { intelectio: 'Intelectio', avico: 'AVICO', nexo: 'Nexo', aero: 'Jogo Aero', barber: 'Navalha', shop: 'Casa Anil', dash: 'Caixa & pedidos', clinic: 'Clínica Alma' };
+  const ORDER = ['intelectio', 'avico', 'nexo', 'aero', 'espelho'], NAMES = { espelho: 'Espelho', intelectio: 'Intelectio', avico: 'AVICO', nexo: 'Nexo', aero: 'Jogo Aero', barber: 'Navalha', shop: 'Casa Anil', dash: 'Caixa & pedidos', clinic: 'Clínica Alma' };
   const th = document.getElementById('th'), thScreen = document.getElementById('thScreen');
   let ti = 0, stopTh = mountAny(thScreen, ORDER[0]), turning = false;
   const showTh = () => {
